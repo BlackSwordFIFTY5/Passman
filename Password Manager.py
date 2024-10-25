@@ -418,7 +418,7 @@ def deletingAccount(target_entry, json_data, passmanEmail, passmanPassword, pass
 			credentialsCheck(passmanEmail, passmanPassword, passkey, passmanPlatform)
 
 def deleting_passman(delAccWindow,passmanWindow, passmanEmail):
-	confirmation = messagebox.askyesno("Deleting Passman!", "Warning! You're about to Delete your Passman account! Do you wish yo continue?")
+	confirmation = messagebox.askyesno("Deleting Passman!", "Warning! You're about to Delete your Passman account! Do you wish to continue?")
 
 	if confirmation:
 		delAccWindow.destroy()
@@ -434,39 +434,41 @@ def passwordRecovery():
 
 	passwordRecoveryWindow = tk.Toplevel()
 
-	passwordRecoveryWindow.geometry("200x200")
-
 	passwordRecoveryLabel = tk.Label(passwordRecoveryWindow, text="Passman Password Recovery!")
 	passwordRecoveryLabel.grid(row=0, column=0, columnspan=2)
 
-	warningLabel = tk.Label(passwordRecoveryWindow, text="Warning! your password will be sent in plain text to the provided recovery Email! Recovery email could take up to 5 minutes, patience is virtue!", fg="red", wraplength=150)
+	warningLabel = tk.Label(passwordRecoveryWindow, text="Warning! your password will be sent in plain text to your Passman Email! Recovery email could take up to 5 minutes, patience is virtue!", fg="red", wraplength=150)
 	warningLabel.grid(row=1, column=0, columnspan=2, rowspan=2)
 
+	usernameLabel = tk.Label(passwordRecoveryWindow, text="Passman Username/Email")
+	usernameLabel.grid(row=3, column=0)
+	usernameEntry = tk.Entry(passwordRecoveryWindow)
+	usernameEntry.grid(row=3, column=1)
+
 	recoveryEmailLabel = tk.Label(passwordRecoveryWindow, text="Recovery Email")
-	recoveryEmailLabel.grid(row=3, column=0)
+	recoveryEmailLabel.grid(row=4, column=0)
 	recoveryEmailEntry = tk.Entry(passwordRecoveryWindow)
-	recoveryEmailEntry.grid(row=3, column=1)
+	recoveryEmailEntry.grid(row=4, column=1)
 
 	passkeyLabel = tk.Label(passwordRecoveryWindow, text="Passkey")
-	passkeyLabel.grid(row=4, column=0)
+	passkeyLabel.grid(row=5, column=0)
 	passkey1Entry = tk.Entry(passwordRecoveryWindow)
-	passkey1Entry.grid(row=4, column=1)
+	passkey1Entry.grid(row=5, column=1)
 
 	cancelbutton = tk.Button(passwordRecoveryWindow, text="Cancel", command= lambda: [passwordRecoveryWindow.destroy(), mainmenu.deiconify()])
-	cancelbutton.grid(row=5, column=0)
+	cancelbutton.grid(row=6, column=0)
 
-	doneButton = tk.Button(passwordRecoveryWindow, text="Done", command= lambda: error_handling(passkey1Entry.get(), recoveryEmailEntry.get()))
-	doneButton.grid(row=5, column=1)
+	doneButton = tk.Button(passwordRecoveryWindow, text="Done", command= lambda: error_handling(passkey1Entry.get(), recoveryEmailEntry.get(), usernameEntry.get()))
+	doneButton.grid(row=6, column=1)
 
-	def error_handling(passkey, email):
+	def error_handling(passkey, email, username):
 		try:
-			if passkey == "" or email == "":
+			if passkey == "" or email == "" or username == "":
 				messagebox.showerror("Recovery Email not sent!", "one or more fields were empty!")
 			else:
-				passwordRecoveryWindow.destroy() 
-				messagebox.showinfo("Success!", "Password sent to recovery email!")
+				passwordRecoveryWindow.destroy()
 				mainmenu.deiconify()
-				pm.passwordRecovery(passkey, email)
+				pm.passwordRecovery(passkey, email, username)
 		except ValueError:
 			messagebox.showerror("Value Error!", "Recovery Message not sent!")
 
