@@ -114,10 +114,10 @@ def returnEncryptedPassword(password, passkey):
 
 	return tempEncryptedPassword
 
-def passwordRecovery(passkey, email):
+def passwordRecovery(passkey, email, passman_username):
 
-	sender_email = "configure sender email!"
-	api_key= "configure your own SendInBlue API key!"
+	sender_email = ""
+	api_key= ""
 
 	recipent_email = ""
 	recipent_email = email
@@ -125,36 +125,44 @@ def passwordRecovery(passkey, email):
 
 	def passwordRecoveryProcess():
 
-		try:
-			if os.path.exists(f'{filePath}-{email}.json'):
-				with open(f'{filePath}-{email}', 'r') as file:
-					data = json.load(file)
-			else:
-				messagebox.showerror('Passman unaccessbile!', "No valid Passman Account found!")
-		except: UnboundLocalError
+		if sender_email == '' or api_key == '':
+			messagebox.showerror('Recovery Error!', 'Sender email and SendInBlue API key not set!')
 
-		for entry in data:
-			if entry['Platform'] == 'Passman':
-				password = decryptPassword("passman.py@gmail.com", "Passman", recoveryPasskey)
+			print(f'{filePath}-{passman_username}.json')
 
-				url = "https://api.sendinblue.com/v3/smtp/email"
-				headers = {
-					"Content-Type": "application/json",
-					"api-key": api_key
-				}
-				payload = {
-					"sender": {"email": sender_email},
-					"to": [{"email": recipent_email}],
-					"subject": "Password Recovery!",
-					"htmlContent": f"This is your Password: {password}"
-				}
-				response = requests.post(url, headers=headers, json=payload)
-				if response.status_code == 201:
-					print("Email sent successfully.")
+			try:
+				if os.path.exists(f'{filePath}-{passman_username}.json'):
+					with open(f'{filePath}-{passman_username}.json', 'r') as file:
+						data = json.load(file)
+
+					for entry in data:
+						if entry['Platform'] == 'Passman':
+							password = decryptPassword(passman_username, "Passman", recoveryPasskey, passman_username)
+
+							url = "https://api.sendinblue.com/v3/smtp/email"
+							headers = {
+								"Content-Type": "application/json",
+								"api-key": api_key
+							}
+							payload = {
+								"sender": {"email": sender_email},
+								"to": [{"email": recipent_email}],
+								"subject": "Password Recovery!",
+								"htmlContent": f"This is your Password: {password}"
+							}
+							response = requests.post(url, headers=headers, json=payload)
+							if response.status_code == 201:
+								print("Email sent successfully.")
+								messagebox.showinfo("Success!", "Password sent to recovery email!")
+							else:
+								print("Failed to send email. Error:", response.text)
+						else:
+							messagebox.showerror('Passman unaccessbile!', "No valid Passman Account found!")
+
 				else:
-					print("Failed to send email. Error:", response.text)
-			else:
-				messagebox.showerror('Passman unaccessbile!', "No valid Passman Account found!")
+					messagebox.showerror('Passman unaccessbile!', "No valid Passman Account found!")
+			except UnboundLocalError:
+				messagebox.showerror('Recovery Error!', 'Passman Unaccessible!')
 
 	if __name__ == "__main__":
 		api_key = api_key
